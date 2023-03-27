@@ -243,13 +243,13 @@ overlay."
           ;; If the display spans multiple lines or is very long, display it at
           ;; the beginning of the next line.
           (when (or (string-match "\n." display-string)
-                    (> (string-width display-string)
+                    (> (length display-string)
                        (- (window-width) (current-column))))
             (setq display-string (concat " \n" display-string)))
           ;; Put the cursor property only once we're done manipulating the
           ;; string, since we want it to be at the first char.
           (put-text-property 0 1 'cursor 0 display-string)
-          (when (> (string-width display-string) (* 3 (window-width)))
+          (when (> (length display-string) (* 3 (window-width)))
             (setq display-string
                   (concat (substring display-string 0 (* 3 (window-width)))
                           (substitute-command-keys
@@ -283,7 +283,7 @@ overlay."
             (when (and (<= (window-start win) (point) (window-end win))
                        ;; Right edge is visible. This is a little conservative
                        ;; if the overlay contains line breaks.
-                       (or (< (+ (current-column) (string-width value))
+                       (or (< (+ (current-column) (length value))
                               (window-width win))
                            (not truncate-lines)))
               o)))))))
