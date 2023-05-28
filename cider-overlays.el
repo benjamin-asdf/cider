@@ -207,7 +207,7 @@ overlay."
   (while (keywordp (car props))
     (setq props (cdr (cdr props))))
   ;; If the marker points to a dead buffer, don't do anything.
-  (let ((buffer (cond
+  (when-let ((buffer (cond
                  ((markerp where) (marker-buffer where))
                  ((markerp (car-safe where)) (marker-buffer (car where)))
                  (t (current-buffer)))))
