@@ -33,6 +33,7 @@
 
 (require 'clojure-mode)
 (require 'cider-eval)
+(require 'cider-log)
 (require 'cider-test) ; required only for the menu
 (require 'cider-eldoc)
 (require 'cider-resolve)
@@ -529,6 +530,12 @@ higher precedence."
     (define-key map (kbd "C-c C-? C-d") #'cider-xref-fn-deps-select)
     (define-key map (kbd "C-c C-q") #'cider-quit)
     (define-key map (kbd "C-c M-r") #'cider-restart)
+    (define-key map (kbd "C-c M-l a") #'cider-log-appender)
+    (define-key map (kbd "C-c M-l c") #'cider-log-consumer)
+    (define-key map (kbd "C-c M-l e") #'cider-log-event)
+    (define-key map (kbd "C-c M-l f") #'cider-log-framework)
+    (define-key map (kbd "C-c M-l i") #'cider-log-info)
+    (define-key map (kbd "C-c M-l l") #'cider-log)
     (dolist (variable '(cider-mode-interactions-menu
                         cider-mode-eval-menu
                         cider-mode-menu))
