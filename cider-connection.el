@@ -1032,11 +1032,12 @@ throw an error if no linked session exists."
                  (_ (cdr (if ensure
                              (sesman-ensure-session 'CIDER)
                            (sesman-current-session 'CIDER)))))))
-    (or (seq-filter (lambda (b)
-                      (unless
-                          (cider-cljs-pending-p b)
-                        (cider--match-repl-type type b)))
-                    repls)
+    (or (let ((ret (seq-filter (lambda (b)
+                                 (unless
+                                     (cider-cljs-pending-p b)
+                                   (cider--match-repl-type type b)))
+                               repls)))
+          (when ret (list (car ret))))
         (when ensure
           (cider--no-repls-user-error type)))))
 
