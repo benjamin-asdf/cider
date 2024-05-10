@@ -4,18 +4,30 @@
 
 ### New features
 
+- [#3632](https://github.com/clojure-emacs/cider/pull/3623): Add new configuration variable `cider-clojure-cli-global-aliases`.
+- [#3366](https://github.com/clojure-emacs/cider/pull/3366): Support display of error overlays with `#dbg!` and `#break!` reader macros.
 - [#3622](https://github.com/clojure-emacs/cider/pull/3461): Basic support for using CIDER from [clojure-ts-mode](https://github.com/clojure-emacs/clojure-ts-mode).
   - The `clojure-mode` dependency is still required for CIDER to function.
   - Some features like `cider-dynamic-indentation` and `cider-font-lock-dynamically` do not work with `clojure-ts-mode` (yet).
+- [#3624](https://github.com/clojure-emacs/cider/pull/3624): Support new `cider.clj-reload/reload` cider-nrepl middleware.
+  - adds `cider-ns-code-reload-tool` defcustom, defaulting to `'tools.namespace`.
+  - you can change it to `'clj-reload` to use [clj-reload](https://github.com/tonsky/clj-reload) instead of [tools.namespace](https://github.com/clojure/tools.namespace).
 
 ### Changes
 
 - [#3626](https://github.com/clojure-emacs/cider/issues/3626): `cider-ns-refresh`: jump to the relevant file/line on errors.
 - [#3628](https://github.com/clojure-emacs/cider/issues/3628): `cider-ns-refresh`: summarize errors as an overlay.
+- Bump the injected `enrich-classpath` to [1.19.3](https://github.com/clojure-emacs/enrich-classpath/compare/v1.19.0...v1.19.3).
 - Bump the injected nREPL to [1.1.1](https://github.com/nrepl/nrepl/blob/v1.1.1/CHANGELOG.md#111-2024-02-20).
-- Bump the injected `cider-nrepl` to [0.46.0](https://github.com/clojure-emacs/cider-nrepl/blob/1cc9b2/CHANGELOG.md#0460-2024-0305).
-  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.0/CHANGELOG.md#0230-2024-03-03).
+- Bump the injected `cider-nrepl` to [0.47.0](https://github.com/clojure-emacs/cider-nrepl/blob/v0.47.0/CHANGELOG.md#0470-2024-03-10).
+  - Updates [Orchard](https://github.com/clojure-emacs/orchard/blob/v0.23.2/CHANGELOG.md#0232-2024-03-10).
   - Updates [Logjam](https://github.com/clojure-emacs/logjam/blob/v0.3.0/CHANGELOG.md#030-2024-03-03).
+  - Updates [Compliment](https://github.com/alexander-yakushev/compliment/blob/951604/CHANGELOG.md#master-unreleased).
+- [orchard#245](https://github.com/clojure-emacs/orchard/pull/245), [cider-nrepl#868](https://github.com/clojure-emacs/cider-nrepl/pull/868): Drop support for Clojure 1.9.
+
+### Bugs fixed
+
+- [#3600](https://github.com/clojure-emacs/cider/pull/3600): Fix scittle jack-in when using `cider-jack-in-clj`.
 
 
 ### Bugs fixed
@@ -27,9 +39,9 @@
 
 ### Bugs fixed
 
-- [#3605](https://github.com/clojure-emacs/cider/issues/3605): avoid `cider--error-phase-of-last-exception` recursive loop.
-- [#3613](https://github.com/clojure-emacs/cider/issues/3613): adapt `cider-completion-context.el` to upstream changes in Compliment.
-- [#3587](https://github.com/clojure-emacs/cider/issues/3587): avoid overlays and `message`s on stderr that is unrelated to exception handling.
+- [#3605](https://github.com/clojure-emacs/cider/issues/3605): Avoid `cider--error-phase-of-last-exception` recursive loop.
+- [#3613](https://github.com/clojure-emacs/cider/issues/3613): Adapt `cider-completion-context.el` to upstream changes in Compliment.
+- [#3587](https://github.com/clojure-emacs/cider/issues/3587): Avoid overlays and `message`s on stderr that is unrelated to exception handling.
 
 ## 1.13.0 (2024-01-14)
 
@@ -44,6 +56,7 @@
   - Introduces Timbre compatibility for [CIDER Log Mode](https://docs.cider.mx/cider/debugging/logging.html).
   - Fixes JS completions for nested objects.
   - Bundles other fixes and reliability improvements.
+- [cider-nrepl#840](https://github.com/clojure-emacs/cider-nrepl/pull/840): Drop support for Clojure 1.8.
 
 ## 1.12.0 (2023-11-24)
 

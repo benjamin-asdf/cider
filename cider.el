@@ -141,7 +141,7 @@
            (null (executable-find "clojure")))
       "powershell"
     "clojure")
-  "The command used to execute clojure with tools.deps (requires Clojure 1.9+).
+  "The command used to execute clojure with tools.deps.
 Don't use clj here, as it doesn't work when spawned from Emacs due to it
 using rlwrap.  If on Windows and no \"clojure\" executable is found we
 default to \"powershell\"."
@@ -172,6 +172,20 @@ then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
   :type 'string
   :safe #'stringp
   :package-version '(cider . "1.1"))
+
+
+(defcustom cider-clojure-cli-global-aliases
+  nil
+  "Global aliases to include when jacking in with the clojure CLI.
+This value should be a string of the form \":foo:bar\", and
+will be prepended to the value of `cider-clojure-cli-aliases'.
+Alias names should be of the form \":foo:bar\".
+Leading \"-A\" \"-M\" \"-T\" or \"-X\" are stripped from aliases
+then concatenated into the \"-M[your-aliases]:cider/nrepl\" form."
+  :type 'string
+  :safe #'stringp
+  :package-version '(cider . "1.14"))
+
 
 (defcustom cider-shadow-cljs-command
   "npx shadow-cljs"
@@ -521,13 +535,15 @@ the artifact.")
 (defconst cider-clojure-artifact-id "org.clojure/clojure"
   "Artifact identifier for Clojure.")
 
-(defconst cider-minimum-clojure-version "1.8.0"
+(defconst cider-minimum-clojure-version "1.10.0"
   "Minimum supported version of Clojure.")
 
-(defconst cider-latest-clojure-version "1.10.1"
-  "Latest supported version of Clojure.")
+(defconst cider-latest-clojure-version "1.11.3"
+  "Latest (newest) version of Clojure.
 
-(defconst cider-required-middleware-version "0.46.0"
+Used when `cider-jack-in-auto-inject-clojure' is set to `latest'.")
+
+(defconst cider-required-middleware-version "0.47.0"
   "The CIDER nREPL version that's known to work properly with CIDER.")
 
 (defcustom cider-injected-middleware-version cider-required-middleware-version
@@ -598,7 +614,7 @@ returned by this function does not include keyword arguments."
   (let ((plugins (if cider-enrich-classpath
                      (append cider-jack-in-lein-plugins
                              `(("cider/cider-nrepl" ,cider-injected-middleware-version)
-                               ("mx.cider/lein-enrich-classpath" "1.19.0")))
+                               ("mx.cider/lein-enrich-classpath" "1.19.3")))
                    (append cider-jack-in-lein-plugins
                            `(("cider/cider-nrepl" ,cider-injected-middleware-version))))))
     (thread-last plugins
@@ -817,6 +833,23 @@ rules to quote it."
          (utf-16le-command (encode-coding-string command 'utf-16le)))
     (format "-encodedCommand %s" (base64-encode-string utf-16le-command t))))
 
+
+(defun cider--combined-aliases ()
+  "Creates the combined ailases as stringe separated by ':'."
+  (let ((final-cider-clojure-cli-aliases
+         (cond ((and cider-clojure-cli-global-aliases cider-clojure-cli-aliases)
+                (concat cider-clojure-cli-global-aliases ":" cider-clojure-cli-aliases))
+               (cider-clojure-cli-global-aliases cider-clojure-cli-global-aliases)
+               (t cider-clojure-cli-aliases))))
+    (if final-cider-clojure-cli-aliases
+        ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
+        ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
+        (let ((aliases (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" final-cider-clojure-cli-aliases))))
+          (if (string-prefix-p ":" aliases)
+              aliases
+            (concat ":" aliases)))
+      "")))
+
 (defun cider-clojure-cli-jack-in-dependencies (global-options params dependencies &optional command)
   "Create Clojure tools.deps jack-in dependencies.
 Does so by concatenating DEPENDENCIES, PARAMS and GLOBAL-OPTIONS into a
@@ -850,14 +883,7 @@ your aliases contain any mains, the cider/nrepl one will be the one used."
             ;; TODO: global-options are deprecated and should be removed in CIDER 2.0
             (if global-options (format "%s " global-options) "")
             deps-quoted
-            (if cider-clojure-cli-aliases
-                ;; remove exec-opts flags -A -M -T or -X from cider-clojure-cli-aliases
-                ;; concatenated with :cider/nrepl to ensure :cider/nrepl comes last
-                (let ((aliases (format "%s" (replace-regexp-in-string "^-\\(A\\|M\\|T\\|X\\)" "" cider-clojure-cli-aliases))))
-                  (if (string-prefix-p ":" aliases)
-                      aliases
-                    (concat ":" aliases)))
-              "")
+            (cider--combined-aliases)
             (if params (format " %s" params) ""))))
 
 (defun cider-shadow-cljs-jack-in-dependencies (global-opts params dependencies)
@@ -1206,7 +1232,7 @@ It's intended to be used in your Emacs config."
 (defcustom cider-default-cljs-repl nil
   "The default ClojureScript REPL to start.
 This affects commands like `cider-jack-in-cljs'.  Generally it's
-intended to be set via .dir-locals.el for individual projects, as its
+intended to be set via .dir-locals.el for individual projects, as it's
 relatively unlikely you'd like to use the same type of REPL in each project
 you're working on."
   :type '(choice (const :tag "Figwheel" figwheel)
@@ -1222,10 +1248,6 @@ you're working on."
                  (const :tag "Custom"   custom))
   :safe #'symbolp
   :package-version '(cider . "0.17.0"))
-
-(make-obsolete-variable 'cider-cljs-lein-repl 'cider-default-cljs-repl "0.17")
-(make-obsolete-variable 'cider-cljs-boot-repl 'cider-default-cljs-repl "0.17")
-(make-obsolete-variable 'cider-cljs-gradle-repl 'cider-default-cljs-repl "0.17")
 
 (defvar cider--select-cljs-repl-history nil)
 (defun cider-select-cljs-repl (&optional default)
